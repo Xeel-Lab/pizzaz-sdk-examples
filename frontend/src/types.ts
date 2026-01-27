@@ -14,6 +14,7 @@ export type OpenAiGlobals<
   maxHeight: number;
   displayMode: DisplayMode;
   safeArea: SafeArea;
+  view: View;
 
   // state
   toolInput: ToolInput;
@@ -70,6 +71,12 @@ export type RequestDisplayMode = (args: { mode: DisplayMode }) => Promise<{
    */
   mode: DisplayMode;
 }>;
+
+export type ViewMode = DisplayMode | "modal";
+export type View = {
+  mode?: ViewMode;
+  params?: UnknownObject;
+};
 
 export type CallToolResponse = {
   result: string;
