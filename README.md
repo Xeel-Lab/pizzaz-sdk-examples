@@ -31,16 +31,16 @@ The MCP servers in this demo highlight how each tool can light up widgets by com
 
 ## Repository structure
 
-- `src/` – Source for each widget example.
-- `assets/` – Generated HTML, JS, and CSS bundles after running the build step.
-- `shopping_cart_python/` – Python MCP server that demonstrates how `_meta["widgetSessionId"]` keeps `widgetState` in sync across turns for a shopping-cart widget.
-- `pizzaz_server_node/` – MCP server implemented with the official TypeScript SDK.
-- `pizzaz_server_python/` – Python MCP server that returns the Pizzaz widgets.
-- `solar-system_server_python/` – Python MCP server for the 3D solar system widget.
-- `kitchen_sink_server_node/` – Node MCP server for the kitchen-sink-lite widget.
-- `kitchen_sink_server_python/` – Python MCP server for the kitchen-sink-lite widget.
-- `authenticated_server_python/` – Python MCP server that demonstrates authenticated tool calls.
-- `build-all.mts` – Vite build orchestrator that produces hashed bundles for every widget entrypoint.
+- `frontend/src/` – Source for each widget example.
+- `frontend/assets/` – Generated HTML, JS, and CSS bundles after running the build step.
+- `backend/shopping_cart_python/` – Python MCP server that demonstrates how `_meta["widgetSessionId"]` keeps `widgetState` in sync across turns for a shopping-cart widget.
+- `backend/pizzaz_server_node/` – MCP server implemented with the official TypeScript SDK.
+- `backend/pizzaz_server_python/` – Python MCP server that returns the Pizzaz widgets.
+- `backend/solar-system_server_python/` – Python MCP server for the 3D solar system widget.
+- `backend/kitchen_sink_server_node/` – Node MCP server for the kitchen-sink-lite widget.
+- `backend/kitchen_sink_server_python/` – Python MCP server for the kitchen-sink-lite widget.
+- `backend/authenticated_server_python/` – Python MCP server that demonstrates authenticated tool calls.
+- `frontend/build-all.mts` – Vite build orchestrator that produces hashed bundles for every widget entrypoint.
 
 ### Pizzaz overview
 
@@ -71,7 +71,7 @@ Use it as a reference for how to wire UI to MCP tool responses and host APIs wit
 Clone the repository and install the workspace dependencies:
 
 ```bash
-pnpm install
+pnpm --dir frontend install
 pre-commit install
 ```
 
@@ -82,7 +82,7 @@ pre-commit install
 The components are bundled into standalone assets that the MCP servers serve as reusable UI resources.
 
 ```bash
-pnpm run build
+pnpm --dir frontend run build
 ```
 
 This command runs `build-all.mts`, producing versioned `.html`, `.js`, and `.css` files inside `assets/`. Each widget is wrapped with the CSS it needs so you can host the bundles directly or ship them with your own server.
@@ -90,7 +90,7 @@ This command runs `build-all.mts`, producing versioned `.html`, `.js`, and `.css
 To iterate on your components locally, you can also launch the Vite dev server:
 
 ```bash
-pnpm run dev
+pnpm --dir frontend run dev
 ```
 
 ## Serve the static assets
@@ -98,7 +98,7 @@ pnpm run dev
 All of the MCP servers expect the bundled HTML, JS, and CSS to be served from the local static file server. After every build, start the server before launching any MCP processes:
 
 ```bash
-pnpm run serve
+pnpm --dir frontend run serve
 ```
 
 The assets are exposed at [`http://localhost:4444`](http://localhost:4444) with CORS enabled so that local tooling (including MCP inspectors) can fetch them.
@@ -118,50 +118,55 @@ The repository ships several demo MCP servers that highlight different widget bu
 ### Pizzaz Node server
 
 ```bash
-cd pizzaz_server_node
+cd backend/pizzaz_server_node
 pnpm start
 ```
 
 ### Pizzaz Python server
 
 ```bash
+cd backend/pizzaz_server_python
 python -m venv .venv
 source .venv/bin/activate
-pip install -r pizzaz_server_python/requirements.txt
-uvicorn pizzaz_server_python.main:app --port 8000
+pip install -r requirements.txt
+uvicorn main:app --port 8000
 ```
 
 ### Authenticated Python server
 
 ```bash
+cd backend/authenticated_server_python
 python -m venv .venv
 source .venv/bin/activate
-pip install -r authenticated_server_python/requirements.txt
-uvicorn authenticated_python_server.main:app --port 8000
+pip install -r requirements.txt
+uvicorn main:app --port 8000
 ```
 
 ### Solar system Python server
 
 ```bash
+cd backend/solar-system_server_python
 python -m venv .venv
 source .venv/bin/activate
-pip install -r solar-system_server_python/requirements.txt
-uvicorn solar-system_server_python.main:app --port 8000
+pip install -r requirements.txt
+uvicorn main:app --port 8000
 ```
 
 ### Kitchen sink lite Node server
 
 ```bash
-pnpm --filter kitchen-sink-mcp-node start
+cd backend/kitchen_sink_server_node
+pnpm start
 ```
 
 ### Kitchen sink lite Python server
 
 ```bash
+cd backend/kitchen_sink_server_python
 python -m venv .venv
 source .venv/bin/activate
-pip install -r kitchen_sink_server_python/requirements.txt
-uvicorn kitchen_sink_server_python.main:app --port 8000
+pip install -r requirements.txt
+uvicorn main:app --port 8000
 ```
 
 ### Shopping cart Python server
@@ -169,14 +174,15 @@ uvicorn kitchen_sink_server_python.main:app --port 8000
 Use this example to learn how `_meta["widgetSessionId"]` can carry `widgetState` between tool calls so the model and widget share the same shopping cart. The widget merges tool responses with prior `widgetState`, and UI actions (like incrementing quantities) feed back into that shared state so the assistant always sees the latest cart.
 
 ```bash
+cd backend/shopping_cart_python
 python -m venv .venv
 source .venv/bin/activate
-pip install -r shopping_cart_python/requirements.txt
-uvicorn shopping_cart_python.main:app --port 8000
+pip install -r requirements.txt
+uvicorn main:app --port 8000
 ```
 
 > [!NOTE]
-> In production you should persist the cart server-side (see [shopping_cart_python/README.md](shopping_cart_python/README.md)), but this demo shows the mechanics of keeping state through `widgetSessionId`.
+> In production you should persist the cart server-side (see [backend/shopping_cart_python/README.md](backend/shopping_cart_python/README.md)), but this demo shows the mechanics of keeping state through `widgetSessionId`.
 
 ---
 
@@ -216,8 +222,8 @@ You can then invoke tools by asking something related. For example, for the Pizz
 
 ## Next steps
 
-- Customize the widget data: edit the handlers in `pizzaz_server_node/src`, `pizzaz_server_python/main.py`, or the solar system server to fetch data from your systems.
-- Create your own components and add them to the gallery: drop new entries into `src/` and they will be picked up automatically by the build script.
+- Customize the widget data: edit the handlers in `backend/pizzaz_server_node/src`, `backend/pizzaz_server_python/main.py`, or the solar system server to fetch data from your systems.
+- Create your own components and add them to the gallery: drop new entries into `frontend/src/` and they will be picked up automatically by the build script.
 
 ### Deploy your MCP server
 
